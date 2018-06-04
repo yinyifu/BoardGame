@@ -56,8 +56,20 @@ export default class BoardComponent extends React.Component {
     this.surroundingBlocks = this.surroundingBlocks.bind(this);
     this.clearState = this.clearState.bind(this);
     this.endTurnPositive = this.endTurnPositive.bind(this);
+    this.powerUp = this.powerUp.bind(this);
   }
 
+  powerUp(x, y){
+    arrayOfBlocks = []
+    for(let i = x-2; i <= x+2; i++){
+      for(let j = y-2; j <= y+2; j++){
+        if(i < this.rows && i >= 0 && j < this.columns && j>=0 && !(i == x && y == j)){
+          arrayOfBlocks.push({x:i, y:j});
+        }
+      }
+    }
+    return arrayOfBlocks;
+  }
   // get blocks around a block within a board
   surroundingBlocks(x, y){
     arrayOfBlocks = []
@@ -94,7 +106,12 @@ export default class BoardComponent extends React.Component {
       }
       this.currentSelected = {x: x, y: y};
     }else if(state[x][y] === stateSelected){
-      this.clearState();
+      board[this.currentSelected.x][this.currentSelected.y] --;
+      let sur = this.powerUp(x,y);
+      for(let i = 0;i < sur.length;i++){
+        state[sur[i].x][sur[i].y] = stateAroundSelected;
+      }
+      this.currentSelected = {x: x, y:y };
     }else if(state[x][y] === stateAroundSelected){
       if(board[this.currentSelected.x][this.currentSelected.y] > 0){
         board[this.currentSelected.x][this.currentSelected.y] --;
@@ -103,6 +120,8 @@ export default class BoardComponent extends React.Component {
         board[this.currentSelected.x][this.currentSelected.y] ++;
         board[x][y]--;
       }
+      this.clearState();
+    }else{
       this.clearState();
     }
     this.setState({board:board, state:state});

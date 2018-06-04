@@ -1,3 +1,8 @@
 node_modules
 package-lock.json
 .expo
+yarn-error.log
+package.json
+yarn.lock
+package.json
+yarn.lock

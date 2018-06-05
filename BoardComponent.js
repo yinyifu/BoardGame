@@ -5,7 +5,8 @@ const stateNormal = "#fff";
 const stateSelected = "#0ff";
 const stateAroundSelected = "#ff0";
 const stateDisabled = "#aaa";
-var overload = false;
+var overload = false; //check if you used the powerup
+var player = 1;
 // Three states : clicked, ready to receive and unclicked.
 export default class BoardComponent extends React.Component {
 
@@ -30,6 +31,15 @@ export default class BoardComponent extends React.Component {
     this.disabledNegative = (value)=>{
       return (value < 0 ? true : false);
     }
+
+    this.disabledPlayer = (value)=>{
+      if(player == -1){
+        return (value > 0 ? true : false);
+      }else if(player == 1){
+        return (value < 0 ? true : false);
+      }
+    }
+
 
     // initialize array for board
     // initialize state for display purpose
@@ -57,9 +67,11 @@ export default class BoardComponent extends React.Component {
     this.surroundingBlocks = this.surroundingBlocks.bind(this);
     this.clearState = this.clearState.bind(this);
     this.endTurnPositive = this.endTurnPositive.bind(this);
-    this.powerUp = this.powerUp.bind(this);
+    this.powerUp = this.powerUp.bind(this); 
+    this.endTurn = this.endTurn.bind(this);
   }
 
+  //increase tha range 
   powerUp(x, y){
     arrayOfBlocks = []
     for(let i = x-2; i <= x+2; i++){
@@ -106,22 +118,33 @@ export default class BoardComponent extends React.Component {
       }
       this.currentSelected = {x: x, y: y};
     }else if(state[x][y] === stateSelected){
-      if(board[this.currentSelected.x][this.currentSelected.y]<2){
-        if(board[this.currentSelected.x][this.currentSelected.y]!=1){
-          board[this.currentSelected.x][this.currentSelected.y]++;
-          this.clearState();
-        }
-      }else{
-        if(overload){
-          board[this.currentSelected.x][this.currentSelected.y] = board[this.currentSelected.x][this.currentSelected.y];
-        }else{
-          board[this.currentSelected.x][this.currentSelected.y] --;
-          overload = true;
-          let sur = this.powerUp(x,y);
-          for(let i = 0;i < sur.length;i++){
-            state[sur[i].x][sur[i].y] = stateAroundSelected;
+        if(board[this.currentSelected.x][this.currentSelected.y]>0){
+          if(board[this.currentSelected.x][this.currentSelected.y]!=1){
+            if(!overload && board[this.currentSelected.x][this.currentSelected.y]>0){
+                board[this.currentSelected.x][this.currentSelected.y] --;
+                overload = true;
+                let sur = this.powerUp(x,y);
+                for(let i = 0;i < sur.length;i++){
+                  state[sur[i].x][sur[i].y] = stateAroundSelected;
+                }
+                this.currentSelected = {x: x, y: y};
+              }
+          }else if(board[this.currentSelected.x][this.currentSelected.y]==1){
+            ;
           }
-          this.currentSelected = {x: x, y: y};
+        }else if(board[this.currentSelected.x][this.currentSelected.y] < 0){
+          if(board[this.currentSelected.x][this.currentSelected.y]!=1){
+            if(!overload){
+            board[this.currentSelected.x][this.currentSelected.y] ++;
+            overload = true;
+            let sur = this.powerUp(x,y);
+            for(let i = 0;i < sur.length;i++){
+              state[sur[i].x][sur[i].y] = stateAroundSelected;
+            }
+            this.currentSelected = {x: x, y: y};
+          }
+        }else if(board[this.currentSelected.x][this.currentSelected.y]==-1){
+            ;
         }
       }
     }else if(state[x][y] === stateAroundSelected){
@@ -132,17 +155,22 @@ export default class BoardComponent extends React.Component {
       }else{
         board[this.currentSelected.x][this.currentSelected.y] ++;
         board[x][y]--;
+        overload = false;
       }
       this.clearState();
     }else{
       this.clearState();
-      if(overload){
+      if(overload && board[this.currentSelected.x][this.currentSelected.y] > 0){
         board[this.currentSelected.x][this.currentSelected.y] ++;
+        overload = false;
+      }else if(overload && board[this.currentSelected.x][this.currentSelected.y] < 0) {
+        board[this.currentSelected.x][this.currentSelected.y] --;
         overload = false;
       }
     }
     this.setState({board:board, state:state});
   }
+
 
   endTurnPositive(){
     board = this.state.board;
@@ -168,6 +196,34 @@ export default class BoardComponent extends React.Component {
     this.setState({board:board});
   }
 
+  endTurn(){
+    board = this.state.board;
+    if(player==1){
+      for(let i = 0;i < this.rows; i++ ){
+        for(let j = 0;j < this.columns;j++){
+          if(board[i][j] > 0){
+            board[i][j]++;
+          }
+        }
+      }
+      player = player * -1;
+      this.clearState();
+      console.log("Player 1");
+    }else if(player == -1){
+      for(let i = 0;i < this.rows; i++ ){
+        for(let j = 0;j < this.columns;j++){
+          if(board[i][j] < 0){
+            board[i][j]--;
+          }
+        }
+      }
+      player = player * -1;
+      this.clearState();
+      console.log("Player 2");
+    }
+    this.setState({board:board});
+  }
+
   render() {
     let rows = this.rows;
     let columns = this.columns;
@@ -179,7 +235,7 @@ export default class BoardComponent extends React.Component {
           <TouchableOpacity 
             key={j} 
             style={[styles.containerBlock, {backgroundColor: this.state.state[i][j]}]} 
-            disabled={this.disabledNegative(this.state.board[i][j])}
+            disabled={this.disabledPlayer(this.state.board[i][j])}
             onPress={this.buttonOnPress.bind(this, i, j)}
           >
             <Text style={[styles.text, ]}>
@@ -202,7 +258,7 @@ export default class BoardComponent extends React.Component {
         {rowsOfViews}
       
         <TouchableOpacity style={{flex: 1, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center'}}
-          onPress={this.endTurnPositive}
+          onPress={this.endTurn}
         >
           <View style={{height: 50, flex: 1, alignItems: 'center', justifyContent: 'center'}}>
             <Text>

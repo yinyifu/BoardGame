@@ -5,6 +5,7 @@ const stateNormal = "#fff";
 const stateSelected = "#0ff";
 const stateAroundSelected = "#ff0";
 const stateDisabled = "#aaa";
+var overload = false;
 // Three states : clicked, ready to receive and unclicked.
 export default class BoardComponent extends React.Component {
 
@@ -96,7 +97,6 @@ export default class BoardComponent extends React.Component {
   buttonOnPress(x,y){
     board = this.state.board;
     state = this.state.state;
-
     if(state[x][y] === stateNormal && board[x][y] != 0){
       this.clearState();
       state[x][y] = stateSelected;
@@ -106,16 +106,29 @@ export default class BoardComponent extends React.Component {
       }
       this.currentSelected = {x: x, y: y};
     }else if(state[x][y] === stateSelected){
-      board[this.currentSelected.x][this.currentSelected.y] --;
-      let sur = this.powerUp(x,y);
-      for(let i = 0;i < sur.length;i++){
-        state[sur[i].x][sur[i].y] = stateAroundSelected;
+      if(board[this.currentSelected.x][this.currentSelected.y]<2){
+        if(board[this.currentSelected.x][this.currentSelected.y]!=1){
+          board[this.currentSelected.x][this.currentSelected.y]++;
+          this.clearState();
+        }
+      }else{
+        if(overload){
+          board[this.currentSelected.x][this.currentSelected.y] = board[this.currentSelected.x][this.currentSelected.y];
+        }else{
+          board[this.currentSelected.x][this.currentSelected.y] --;
+          overload = true;
+          let sur = this.powerUp(x,y);
+          for(let i = 0;i < sur.length;i++){
+            state[sur[i].x][sur[i].y] = stateAroundSelected;
+          }
+          this.currentSelected = {x: x, y: y};
+        }
       }
-      this.currentSelected = {x: x, y:y };
     }else if(state[x][y] === stateAroundSelected){
       if(board[this.currentSelected.x][this.currentSelected.y] > 0){
         board[this.currentSelected.x][this.currentSelected.y] --;
         board[x][y]++;
+        overload = false;
       }else{
         board[this.currentSelected.x][this.currentSelected.y] ++;
         board[x][y]--;
@@ -123,6 +136,12 @@ export default class BoardComponent extends React.Component {
       this.clearState();
     }else{
       this.clearState();
+      if(overload){
+        board[this.currentSelected.x][this.currentSelected.y] ++;
+        overload = false;
+      }else{
+      overload = false;
+      }
     }
     this.setState({board:board, state:state});
   }

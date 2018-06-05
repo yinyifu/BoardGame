@@ -139,8 +139,6 @@ export default class BoardComponent extends React.Component {
       if(overload){
         board[this.currentSelected.x][this.currentSelected.y] ++;
         overload = false;
-      }else{
-      overload = false;
       }
     }
     this.setState({board:board, state:state});

@@ -110,15 +110,27 @@ export default class BoardComponent extends React.Component {
     board = this.state.board;
     state = this.state.state;
     if(state[x][y] === stateNormal && board[x][y] != 0){
-      this.clearState();
-      state[x][y] = stateSelected;
-      let sur = this.surroundingBlocks(x, y);
-      for(let i = 0; i < sur.length; i++){
-        state[sur[i].x][sur[i].y] = stateAroundSelected;
+      if(player == 1 && board[x][y]>0){
+        this.clearState();
+        state[x][y] = stateSelected;
+        let sur = this.surroundingBlocks(x, y);
+        for(let i = 0; i < sur.length; i++){
+          state[sur[i].x][sur[i].y] = stateAroundSelected;
+        }
+        this.currentSelected = {x: x, y: y};
+      }else if(player == -1 && board[x][y]<0){
+        this.clearState();
+        state[x][y] = stateSelected;
+        let sur = this.surroundingBlocks(x, y);
+        for(let i = 0; i < sur.length; i++){
+          state[sur[i].x][sur[i].y] = stateAroundSelected;
+        }
+        this.currentSelected = {x: x, y: y};
+      }else{
+        ;
       }
-      this.currentSelected = {x: x, y: y};
     }else if(state[x][y] === stateSelected){
-        if(board[this.currentSelected.x][this.currentSelected.y]>0){
+        if(board[this.currentSelected.x][this.currentSelected.y]>0 && player == 1){
           if(board[this.currentSelected.x][this.currentSelected.y]!=1){
             if(!overload && board[this.currentSelected.x][this.currentSelected.y]>0){
                 board[this.currentSelected.x][this.currentSelected.y] --;
@@ -132,8 +144,8 @@ export default class BoardComponent extends React.Component {
           }else if(board[this.currentSelected.x][this.currentSelected.y]==1){
             ;
           }
-        }else if(board[this.currentSelected.x][this.currentSelected.y] < 0){
-          if(board[this.currentSelected.x][this.currentSelected.y]!=1){
+        }else if(board[this.currentSelected.x][this.currentSelected.y] < 0 && player == -1){
+          if(board[this.currentSelected.x][this.currentSelected.y]!=-1){
             if(!overload){
             board[this.currentSelected.x][this.currentSelected.y] ++;
             overload = true;
@@ -142,11 +154,11 @@ export default class BoardComponent extends React.Component {
               state[sur[i].x][sur[i].y] = stateAroundSelected;
             }
             this.currentSelected = {x: x, y: y};
+            }
+          }else if(board[this.currentSelected.x][this.currentSelected.y]==-1){
+              ;
           }
-        }else if(board[this.currentSelected.x][this.currentSelected.y]==-1){
-            ;
         }
-      }
     }else if(state[x][y] === stateAroundSelected){
       if(board[this.currentSelected.x][this.currentSelected.y] > 0){
         board[this.currentSelected.x][this.currentSelected.y] --;
@@ -208,7 +220,7 @@ export default class BoardComponent extends React.Component {
       }
       player = player * -1;
       this.clearState();
-      console.log("Player 1");
+      //console.log("Player 1");
     }else if(player == -1){
       for(let i = 0;i < this.rows; i++ ){
         for(let j = 0;j < this.columns;j++){
@@ -219,7 +231,7 @@ export default class BoardComponent extends React.Component {
       }
       player = player * -1;
       this.clearState();
-      console.log("Player 2");
+      //console.log("Player 2");
     }
     this.setState({board:board});
   }
@@ -235,7 +247,7 @@ export default class BoardComponent extends React.Component {
           <TouchableOpacity 
             key={j} 
             style={[styles.containerBlock, {backgroundColor: this.state.state[i][j]}]} 
-            disabled={this.disabledPlayer(this.state.board[i][j])}
+            //disabled={this.disabledPlayer(this.state.board[i][j])}
             onPress={this.buttonOnPress.bind(this, i, j)}
           >
             <Text style={[styles.text, ]}>

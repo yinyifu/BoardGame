@@ -12,7 +12,6 @@ export default class App extends React.Component {
            barStyle="light-content"
            hidden={true}
          />
-        <BoardComponent style={{transform: [{rotate: "180deg"}]}}/>
         <BoardComponent />
       </View>
     );

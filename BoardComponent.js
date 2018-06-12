@@ -109,28 +109,32 @@ export default class BoardComponent extends React.Component {
 
   winState(){
     state = this.state.state;
+    board = this.state.board;
     var playerOneWin = false;
     var playerTwoWin = false;
     var playerOneCount = 0;
-    var playerTwoCount = 0
+    var playerTwoCount = 0;
     for(let i = 0;i < this.rows; i++ ){
       for(let j = 0;j < this.columns;j++){
-        if(state[i][j] <= -1){
+        if(board[i][j] <= -1){
           playerTwoCount++;
-        }else if(state[i][j] >= 1){
+        }else if(board[i][j] >= 1){
           playerOneCount++;
         }
       }
     }
     if(playerOneCount <= 0){
       playerTwoWin = true;
-      console.log("Player one wins");
+      console.log("Player two wins");
+      console.log("player one loses");
     }
     if(playerTwoCount <= 0){
       playerOneWin = true;
-      console.log("player two wins");
+      console.log("player one wins");
+      console.log("player two loses");
     }
     this.state.state = state;
+    this.setState({board:board, state:state});
   }
 
   buttonOnPress(x,y){
@@ -209,7 +213,6 @@ export default class BoardComponent extends React.Component {
         overload = false;
       }
     }
-
     this.setState({board:board, state:state});
   }
 
@@ -265,7 +268,7 @@ export default class BoardComponent extends React.Component {
       this.clearState();
       //console.log("Player 2");
     }
-    
+    this.winState();
     this.setState({board:board});
   }
 

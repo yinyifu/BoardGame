@@ -127,14 +127,31 @@ export default class BoardComponent extends React.Component {
       playerTwoWin = true;
       console.log("Player two wins");
       console.log("player one loses");
+      this.reset();
     }
     if(playerTwoCount <= 0){
       playerOneWin = true;
       console.log("player one wins");
       console.log("player two loses");
+      this.reset();
     }
     this.state.state = state;
     this.setState({board:board, state:state});
+  }
+
+  reset(){
+    this.clearState();
+    board = this.state.board;
+    for(let i = 0;i < this.rows; i++ ){
+      for(let j = 0;j < this.columns;j++){
+        board[i][j] = 0;
+      }
+    }
+    board[this.rows-1][Math.floor(this.columns/2)] = 1;
+    board[0][Math.floor(this.columns/2)] = -1;
+    player = 1;
+    moves = 3;
+    overload = false;
   }
 
   buttonOnPress(x,y){

@@ -2,16 +2,17 @@ import React from 'react';
 import { StyleSheet, Text, View, StatusBar } from 'react-native';
 import BoardComponent from './BoardComponent';
 export default class App extends React.Component {
+  
   render() {
     return (
-      <View style={styles.container}>
+      <View 
+          style={styles.container}>
           <StatusBar
            backgroundColor="blue"
            barStyle="light-content"
            hidden={true}
          />
         <BoardComponent />
-        <BoardComponent style={{transform:[{rotate:"180deg"}]}}/>
       </View>
     );
   }

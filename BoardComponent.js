@@ -6,7 +6,8 @@ const stateSelected = "#0ff";
 const stateAroundSelected = "#ff0";
 const stateDisabled = "#aaa";
 var overload = false; //check if you used the powerup
-var player = 1;
+var player = 1; //what player 
+var moves = 3; //move limits
 // Three states : clicked, ready to receive and unclicked.
 export default class BoardComponent extends React.Component {
 
@@ -106,10 +107,57 @@ export default class BoardComponent extends React.Component {
     this.state.state = state;
   }
 
+  winState(){
+    state = this.state.state;
+    board = this.state.board;
+    var playerOneWin = false;
+    var playerTwoWin = false;
+    var playerOneCount = 0;
+    var playerTwoCount = 0;
+    for(let i = 0;i < this.rows; i++ ){
+      for(let j = 0;j < this.columns;j++){
+        if(board[i][j] <= -1){
+          playerTwoCount++;
+        }else if(board[i][j] >= 1){
+          playerOneCount++;
+        }
+      }
+    }
+    if(playerOneCount <= 0){
+      playerTwoWin = true;
+      console.log("Player two wins");
+      console.log("player one loses");
+      this.reset();
+    }
+    if(playerTwoCount <= 0){
+      playerOneWin = true;
+      console.log("player one wins");
+      console.log("player two loses");
+      this.reset();
+    }
+    this.state.state = state;
+    this.setState({board:board, state:state});
+  }
+
+  reset(){
+    this.clearState();
+    board = this.state.board;
+    for(let i = 0;i < this.rows; i++ ){
+      for(let j = 0;j < this.columns;j++){
+        board[i][j] = 0;
+      }
+    }
+    board[this.rows-1][Math.floor(this.columns/2)] = 1;
+    board[0][Math.floor(this.columns/2)] = -1;
+    player = 1;
+    moves = 3;
+    overload = false;
+  }
+
   buttonOnPress(x,y){
     board = this.state.board;
     state = this.state.state;
-    if(state[x][y] === stateNormal && board[x][y] != 0){
+    if(state[x][y] === stateNormal && board[x][y] != 0 && moves > 0){
       if(player == 1 && board[x][y]>0){
         this.clearState();
         state[x][y] = stateSelected;
@@ -129,7 +177,7 @@ export default class BoardComponent extends React.Component {
       }else{
         ;
       }
-    }else if(state[x][y] === stateSelected){
+    }else if(state[x][y] === stateSelected && moves > 0){
         if(board[this.currentSelected.x][this.currentSelected.y]>0 && player == 1){
           if(board[this.currentSelected.x][this.currentSelected.y]!=1){
             if(!overload && board[this.currentSelected.x][this.currentSelected.y]>0){
@@ -159,14 +207,16 @@ export default class BoardComponent extends React.Component {
               ;
           }
         }
-    }else if(state[x][y] === stateAroundSelected){
+    }else if(state[x][y] === stateAroundSelected && moves > 0){
       if(board[this.currentSelected.x][this.currentSelected.y] > 0){
         board[this.currentSelected.x][this.currentSelected.y] --;
         board[x][y]++;
+        moves--;
         overload = false;
       }else{
         board[this.currentSelected.x][this.currentSelected.y] ++;
         board[x][y]--;
+        moves--;
         overload = false;
       }
       this.clearState();
@@ -215,6 +265,7 @@ export default class BoardComponent extends React.Component {
         for(let j = 0;j < this.columns;j++){
           if(board[i][j] > 0){
             board[i][j]++;
+            moves = 3;
           }
         }
       }
@@ -226,6 +277,7 @@ export default class BoardComponent extends React.Component {
         for(let j = 0;j < this.columns;j++){
           if(board[i][j] < 0){
             board[i][j]--;
+            moves = 3;
           }
         }
       }
@@ -233,6 +285,7 @@ export default class BoardComponent extends React.Component {
       this.clearState();
       //console.log("Player 2");
     }
+    this.winState();
     this.setState({board:board});
   }
 
